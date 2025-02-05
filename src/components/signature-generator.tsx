@@ -147,9 +147,9 @@ export default function SignatureGenerator() {
 
             <div className="grid md:grid-cols-1 gap-6 ">
                 {/* Visualização da Assinatura */}
-                <div className="overflow-scroll shadow-2xl">
+                <div className="overflow-scroll md:overflow-auto shadow-2xl rounded-xl">
                     <div className="space-y-4  min-w-[700px] ">
-                        <Card className="p-2 bg-white border-4 border-white ">
+                        <Card className="p-2 bg-white/60 border-4 border-white rounded-xl">
                             <div id="signature-preview" className="p-4 bg-white">
                                 <div className="font-sans text-sm space-y-4 sm:space-y-6">
                                     {/* Header */}
@@ -204,7 +204,7 @@ export default function SignatureGenerator() {
                         </Card>
                     </div>
                 </div>
-                <Card className="p-6 bg-white  shadow-xl shadow-slate-200">
+                <Card className="p-6 bg-white/70  shadow-xl shadow-slate-200">
                     <form className="space-y-4">
                         <div>
                             <Label htmlFor="name">Nome Completo</Label>
