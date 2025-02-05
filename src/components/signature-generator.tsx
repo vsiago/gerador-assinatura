@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import html2canvas from "html2canvas"
-import { User, Briefcase, Building2, Phone, MapPin, Upload } from "lucide-react"
+import { User, Briefcase, Building2, Phone, MapPin, Upload, Building, PhoneCall, MapPinned } from "lucide-react"
 
 export default function SignatureGenerator() {
     const [formData, setFormData] = useState({
@@ -79,10 +79,10 @@ export default function SignatureGenerator() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
+        <div className="container mx-auto p-6">
             <h1 className="text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura de E-mail</h1>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6 ">
                 {/* Formulário */}
                 <Card className="p-6 bg-white/50 border-4 border-white shadow-xl shadow-slate-200">
                     <form className="space-y-4">
@@ -225,7 +225,7 @@ export default function SignatureGenerator() {
                         <div>
                             <Label htmlFor="avatar">Foto de Perfil (Opcional)</Label>
                             <div className="flex items-center space-x-4">
-                                <Avatar className="w-10 h-10 border border-slate-300 bg-slate-600">
+                                <Avatar className="w-12 h-12">
                                     <AvatarImage src={avatar || undefined} alt="Avatar" />
                                     <AvatarFallback>{getInitials(formData.name)}</AvatarFallback>
                                 </Avatar>
@@ -254,40 +254,59 @@ export default function SignatureGenerator() {
                 </Card>
 
                 {/* Visualização da Assinatura */}
-                <div className="space-y-4">
+                <div className="space-y-4 ">
                     <Card className="p-2 bg-white/50 border-4 border-white shadow-xl shadow-slate-200 text-slate-600">
                         <div id="signature-preview" className="p-4">
-                            <div className="font-sans text-sm">
-                                <div className="flex items-center space-x-2 mb-2">
-                                    <Avatar className="w-10 h-10 border-2 border-sky-500 bg-slate-600">
-                                        <AvatarImage src={avatar || undefined} alt="Avatar" />
-                                        <AvatarFallback className="font-bold">{getInitials(formData.name)}</AvatarFallback>
-                                    </Avatar>
-                                    <p className="font-bold text-base">
-                                        {formatName(formData.name)} | {formData.role || "Cargo"}
-                                    </p>
+                            <div className="font-sans text-sm space-y-4 sm:space-y-6">
+                                {/* Header */}
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center sm:flex-row sm:items-start gap-4 ">
+                                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 ring-4 ring-sky-500 border-white">
+                                            <AvatarImage src={avatar || undefined} alt="Avatar" />
+                                            <AvatarFallback className="font-semibold text-3xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="text-center sm:text-left mt-3">
+                                            <p className="font-bold text-2xl sm:text-xl text-[#375582]">{formatName(formData.name)}</p>
+                                            <p className="text-[#375582] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
+                                        </div>
+                                    </div>
+                                    <img
+                                        src="/assinatura-prefeitura-itaguaí.png"
+                                        alt="Prefeitura de Itaguaí"
+                                        className="w-24 sm:w-32 object-contain"
+                                    />
                                 </div>
-                                <div className="mt-2 pt-2 border-t">
-                                    <p className="text-xs font-bold">Departamento</p>
-                                    <p>{formData.department || "Departamento"}</p>
+
+                                {/* Grid Info */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 border-t pt-5">
+                                    <div className="space-y-1 text-[#375582]">
+                                        <div className="flex items-center gap-2 ">
+                                            <Building className="w-5 h-5 flex-shrink-0" />
+                                            <span className="font-semibold">Departamento</span>
+                                        </div>
+                                        <p className="pl-7 text-base">{formData.department || "Departamento"}</p>
+                                    </div>
+
+                                    <div className="space-y-1 text-[#375582]">
+                                        <div className="flex items-center gap-2 ">
+                                            <PhoneCall className="w-5 h-5 flex-shrink-0" />
+                                            <span className="font-semibold">Telefone</span>
+                                        </div>
+                                        <p className="pl-7 text-base">{formatPhone(formData.phone)}</p>
+                                    </div>
+
+                                    <div className="space-y-1 text-[#375582]">
+                                        <div className="flex items-center gap-2 ">
+                                            <MapPinned className="w-5 h-5 flex-shrink-0" />
+                                            <span className="font-semibold">Endereço</span>
+                                        </div>
+                                        <p className="pl-7 text-base">{formData.address || "Endereço"}</p>
+                                    </div>
                                 </div>
-                                <div className="mt-2">
-                                    <p className="text-xs font-bold">Telefone</p>
-                                    <p>{formatPhone(formData.phone)}</p>
-                                </div>
-                                <div className="mt-2">
-                                    <p className="text-xs font-bold">Endereço</p>
-                                    <p>{formData.address || "Endereço"}</p>
-                                </div>
-                                <img
-                                    src="/assinatura-prefeitura-itaguaí.png"
-                                    alt="Prefeitura de Itaguaí"
-                                    className="mt-4 max-w-[300px]"
-                                />
                             </div>
                         </div>
                     </Card>
-                    <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 text-sky-50 h-10">
+                    <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 text-sky-50 h-12">
                         Baixar Assinatura
                     </Button>
                 </div>
