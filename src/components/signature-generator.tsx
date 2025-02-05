@@ -372,7 +372,7 @@ export default function SignatureGenerator() {
                         </div>
                     </form>
                 </Card>
-                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 text-sky-50 h-12">
+                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12">
                     Baixar Assinatura
                 </Button>
 
