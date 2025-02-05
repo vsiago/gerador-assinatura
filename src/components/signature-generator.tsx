@@ -143,7 +143,7 @@ export default function SignatureGenerator() {
 
     return (
         <div className="container mx-auto p-6 max-w-3xl">
-            <h1 className="text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura <br /> de E-mail</h1>
+            <h1 className="text-lg md:text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura de E-mail</h1>
 
             <div className="grid md:grid-cols-1 gap-6 ">
                 {/* Visualização da Assinatura */}
@@ -375,7 +375,16 @@ export default function SignatureGenerator() {
                 <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12">
                     Baixar Assinatura
                 </Button>
-
+            </div>
+            <div className="w-full h-20">
+                
+            <Image
+            width={150}
+            height={150}
+            className="h-full w-full max-w-[320px] mx-auto my-3"
+                alt="Logo SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação"
+                src="/logo-SMCTIC.svg"
+            />
             </div>
         </div>
     )
