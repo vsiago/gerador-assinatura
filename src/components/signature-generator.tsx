@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import html2canvas from "html2canvas"
+import domtoimage from 'dom-to-image-more';
 import { User, Briefcase, Building2, Phone, MapPin, Upload, Building, PhoneCall, MapPinned } from "lucide-react"
+import Image from "next/image"
 
 export default function SignatureGenerator() {
     const [formData, setFormData] = useState({
@@ -37,31 +38,93 @@ export default function SignatureGenerator() {
     }
 
     const handleDownload = async () => {
-        const signatureElement = document.getElementById("signature-preview")
-        if (!signatureElement) return
+        const signatureElement = document.getElementById("signature-preview");
+        if (!signatureElement) return;
+
+        // Clona o elemento para manipulação sem afetar a visualização original
+        const clone = signatureElement.cloneNode(true) as HTMLElement;
+
+        // Função para verificar se todas as imagens foram carregadas
+        const waitForImagesToLoad = async (element: HTMLElement) => {
+            const imgElements = element.querySelectorAll("img");
+            const promises = Array.from(imgElements).map((img) => {
+                return new Promise<void>((resolve) => {
+                    if (img.complete) {
+                        resolve();
+                    } else {
+                        img.onload = () => resolve();
+                        img.onerror = () => resolve(); // Para evitar travamento caso uma imagem falhe
+                    }
+                });
+            });
+            await Promise.all(promises);
+        };
+
+        // Remove bordas indesejadas dos elementos clonados
+        clone.querySelectorAll("*").forEach((el) => {
+            (el as HTMLElement).style.border = "none";
+        });
+
+        // Injeta um CSS no clone para sobrescrever pseudo-elementos que possam estar aplicando sombras/bordas
+        const style = document.createElement("style");
+        clone.insertBefore(style, clone.firstChild);
+
+        // Posiciona o clone fora da tela para que não interfira na visualização
+        clone.style.position = "absolute";
+        clone.style.top = "-9999px";
+
+        // Define a largura do clone para 700px, altura automática
+        clone.style.width = "700px";
+        clone.style.height = "auto";
+
+        document.body.appendChild(clone);
+
+        // Aguarda o carregamento de todas as imagens antes de capturar a imagem
+        await waitForImagesToLoad(clone);
+
+        // Aguarda o reflow para calcular a nova altura
+        const newHeight = clone.offsetHeight;
 
         try {
-            const canvas = await html2canvas(signatureElement)
-            const url = canvas.toDataURL("image/png")
-            const link = document.createElement("a")
-            link.download = "assinatura-email.png"
-            link.href = url
-            link.click()
+            // Gera a imagem com largura de 700px e a altura calculada
+            const dataUrl = await domtoimage.toPng(clone, {
+                width: 700,
+                height: newHeight,
+                bgcolor: "white",
+            });
+            const link = document.createElement("a");
+            link.download = "assinatura-email.png";
+            link.href = dataUrl;
+            link.click();
         } catch (error) {
-            console.error("Erro ao gerar assinatura:", error)
+            console.error("Erro ao gerar assinatura:", error);
+        } finally {
+            // Remove o clone da DOM após a captura
+            document.body.removeChild(clone);
         }
-    }
+    };
+
+
+
 
     function formatName(name: string) {
-        if (!name) return "Nome Completo"
-        return name
-            .split(" ")
-            .map((word) =>
-                ["da", "do", "das", "dos"].includes(word.toLowerCase())
-                    ? word
-                    : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
-            )
-            .join(" ")
+        if (!name) return "Nome Completo";
+
+        const ignoreWords = ["da", "do", "das", "dos"];
+
+        // Divide o nome em palavras, removendo espaços extras
+        let words = name
+            .trim()
+            .split(/\s+/) // Divide corretamente os espaços múltiplos
+            .filter(word => !ignoreWords.includes(word.toLowerCase())) // Remove 'da', 'do', etc.
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()); // Ajusta maiúsculas e minúsculas
+
+        if (words.length > 2) {
+            // Mantém o primeiro e último nome completos e reduz os intermediários para a inicial + "."
+            return `${words[0]} ${words.slice(1, -1).map(w => w.charAt(0) + ".").join(" ")} ${words[words.length - 1]}`;
+        }
+
+        return words.join(" ");
     }
 
     function formatPhone(phone: string) {
@@ -79,12 +142,69 @@ export default function SignatureGenerator() {
     }
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura de E-mail</h1>
+        <div className="container mx-auto p-6 max-w-3xl">
+            <h1 className="text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura <br /> de E-mail</h1>
 
-            <div className="grid md:grid-cols-2 gap-6 ">
-                {/* Formulário */}
-                <Card className="p-6 bg-white/50 border-4 border-white shadow-xl shadow-slate-200">
+            <div className="grid md:grid-cols-1 gap-6 ">
+                {/* Visualização da Assinatura */}
+                <div className="overflow-scroll shadow-2xl">
+                    <div className="space-y-4  min-w-[700px] ">
+                        <Card className="p-2 bg-white border-4 border-white ">
+                            <div id="signature-preview" className="p-4 bg-white">
+                                <div className="font-sans text-sm space-y-4 sm:space-y-6">
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex   gap-4 flex-1 ">
+                                            <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 ring-4 ring-sky-500 border-white">
+                                                <AvatarImage src={avatar || undefined} alt="Avatar" />
+                                                <AvatarFallback className="font-semibold text-4xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
+                                            </Avatar>
+                                            <div className="text-left mt-1 md:mt-3 ml-2  w-full">
+                                                <p className="font-bold text-xl text-[#375582]">{formatName(formData.name)}</p>
+                                                <p className="text-[#0266AF] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
+                                            </div>
+                                        </div>
+                                        <div className=" w-48">
+                                            <img
+                                                src="/assinatura-prefeitura-itaguaí.png"
+                                                alt="Prefeitura de Itaguaí"
+                                                className="w-fullmd:w-48 object-cover"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Grid Info */}
+                                    <div className="flex sm:gap-2 border-t pt-5">
+                                        <div className="space-y-1 text-[#375582] flex-1">
+                                            <div className="flex items-center gap-1 ">
+                                                <Building className="w-5 h-5 flex-shrink-0" />
+                                                <span className="font-semibold">Departamento</span>
+                                            </div>
+                                            <p className="text-base font-medium text-slate-500">{formData.department || "Departamento"}</p>
+                                        </div>
+
+                                        <div className="space-y-1 text-[#375582] w-44 ">
+                                            <div className="flex items-center gap-2 ">
+                                                <MapPinned className="w-5 h-5 flex-shrink-0" />
+                                                <span className="font-semibold">Endereço</span>
+                                            </div>
+                                            <p className="text-base font-medium text-slate-500">{formData.address || "Endereço"}</p>
+                                        </div>
+
+                                        <div className="space-y-1 text-[#375582] w-44">
+                                            <div className="flex items-center gap-2 ">
+                                                <PhoneCall className="w-5 h-5 flex-shrink-0" />
+                                                <span className="font-semibold">Telefone</span>
+                                            </div>
+                                            <p className="text-base font-medium text-slate-500">{formatPhone(formData.phone)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+                </div>
+                <Card className="p-6 bg-white  shadow-xl shadow-slate-200">
                     <form className="space-y-4">
                         <div>
                             <Label htmlFor="name">Nome Completo</Label>
@@ -125,7 +245,7 @@ export default function SignatureGenerator() {
                                     name="department"
                                     value={formData.department}
                                     onChange={handleInputChange}
-                                    className="flex h-10 w-full text-slate-600 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="flex h-10 w-full text-slate-600 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0266AF] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                     <option value="">Selecione o departamento</option>
                                     <option value="GP - Gabinete do Prefeito">GP - Gabinete do Prefeito</option>
@@ -225,7 +345,7 @@ export default function SignatureGenerator() {
                         <div>
                             <Label htmlFor="avatar">Foto de Perfil (Opcional)</Label>
                             <div className="flex items-center space-x-4">
-                                <Avatar className="w-12 h-12">
+                                <Avatar className="w-12 h-12 border-4">
                                     <AvatarImage src={avatar || undefined} alt="Avatar" />
                                     <AvatarFallback>{getInitials(formData.name)}</AvatarFallback>
                                 </Avatar>
@@ -233,7 +353,7 @@ export default function SignatureGenerator() {
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    className="flex items-center space-x-2"
+                                    className="flex items-center space-x-1"
                                     onClick={() => fileInputRef.current?.click()}
                                 >
                                     <Upload size={16} />
@@ -252,64 +372,10 @@ export default function SignatureGenerator() {
                         </div>
                     </form>
                 </Card>
+                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 text-sky-50 h-12">
+                    Baixar Assinatura
+                </Button>
 
-                {/* Visualização da Assinatura */}
-                <div className="space-y-4 ">
-                    <Card className="p-2 bg-white/50 border-4 border-white shadow-xl shadow-slate-200 text-slate-600">
-                        <div id="signature-preview" className="p-4">
-                            <div className="font-sans text-sm space-y-4 sm:space-y-6">
-                                {/* Header */}
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <div className="flex items-center sm:flex-row sm:items-start gap-4 ">
-                                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 ring-4 ring-sky-500 border-white">
-                                            <AvatarImage src={avatar || undefined} alt="Avatar" />
-                                            <AvatarFallback className="font-semibold text-3xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="text-center sm:text-left mt-3">
-                                            <p className="font-bold text-2xl sm:text-xl text-[#375582]">{formatName(formData.name)}</p>
-                                            <p className="text-[#375582] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
-                                        </div>
-                                    </div>
-                                    <img
-                                        src="/assinatura-prefeitura-itaguaí.png"
-                                        alt="Prefeitura de Itaguaí"
-                                        className="w-24 sm:w-32 object-contain"
-                                    />
-                                </div>
-
-                                {/* Grid Info */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 border-t pt-5">
-                                    <div className="space-y-1 text-[#375582]">
-                                        <div className="flex items-center gap-2 ">
-                                            <Building className="w-5 h-5 flex-shrink-0" />
-                                            <span className="font-semibold">Departamento</span>
-                                        </div>
-                                        <p className="pl-7 text-base">{formData.department || "Departamento"}</p>
-                                    </div>
-
-                                    <div className="space-y-1 text-[#375582]">
-                                        <div className="flex items-center gap-2 ">
-                                            <PhoneCall className="w-5 h-5 flex-shrink-0" />
-                                            <span className="font-semibold">Telefone</span>
-                                        </div>
-                                        <p className="pl-7 text-base">{formatPhone(formData.phone)}</p>
-                                    </div>
-
-                                    <div className="space-y-1 text-[#375582]">
-                                        <div className="flex items-center gap-2 ">
-                                            <MapPinned className="w-5 h-5 flex-shrink-0" />
-                                            <span className="font-semibold">Endereço</span>
-                                        </div>
-                                        <p className="pl-7 text-base">{formData.address || "Endereço"}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 text-sky-50 h-12">
-                        Baixar Assinatura
-                    </Button>
-                </div>
             </div>
         </div>
     )
