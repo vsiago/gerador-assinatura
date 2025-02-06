@@ -21,6 +21,7 @@ export default function SignatureGenerator() {
     const [avatar, setAvatar] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
         setFormData((prev) => ({ ...prev, [name]: value }))
@@ -127,18 +128,25 @@ export default function SignatureGenerator() {
         return words.join(" ");
     }
 
-    function formatPhone(phone: string) {
+    function formatPhone(phone: string): string {
         if (!phone) return "";
 
         // Remove tudo que não for número
         let numericValue = phone.replace(/\D/g, "");
 
-        // Limita a 11 dígitos (DDD + número)
+        // Limita o número a 11 dígitos (DDD + número)
         numericValue = numericValue.slice(0, 11);
 
-        // Aplica a máscara (XX) XXXXX-XXXX
-        return numericValue.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+        // Aplica a máscara automaticamente
+        if (numericValue.length <= 10) {
+            // Telefone fixo (XX) XXXX-XXXX
+            return numericValue.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+        } else {
+            // Telefone celular (XX) XXXXX-XXXX
+            return numericValue.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
+        }
     }
+
 
     const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const formatted = formatPhone(e.target.value);
@@ -153,6 +161,25 @@ export default function SignatureGenerator() {
             .toUpperCase()
             .slice(0, 2)
     }
+
+    function capitalizeWords(text: string): string {
+        if (!text) return "";
+
+        const lowercaseWords = ["e", "de", "do", "da", "dos", "das", "em", "no", "na", "nos", "nas", "com", "por", "a", "o"]; // Lista de palavras que devem permanecer minúsculas
+
+        return text
+            .toLocaleLowerCase("pt-BR") // Converte tudo para minúsculas corretamente
+            .split(/\s+/) // Divide corretamente por espaços múltiplos
+            .map((word, index) =>
+                lowercaseWords.includes(word) && index !== 0 // Mantém as palavras da lista minúsculas, exceto se for a primeira
+                    ? word
+                    : word.charAt(0).toLocaleUpperCase("pt-BR") + word.slice(1)
+            )
+            .join(" "); // Junta as palavras novamente
+    }
+
+
+
 
     return (
         <div className="container mx-auto  max-w-3xl">
@@ -226,6 +253,7 @@ export default function SignatureGenerator() {
                                     <Input
                                         id="name"
                                         name="name"
+                                        required
                                         value={formData.name}
                                         onChange={handleInputChange}
                                         placeholder="Ex: João Silva"
@@ -245,9 +273,7 @@ export default function SignatureGenerator() {
                                         onChange={(e) =>
                                             setFormData((prev) => ({
                                                 ...prev,
-                                                role: e.target.value
-                                                    .toLowerCase()
-                                                    .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitaliza cada palavra
+                                                role: capitalizeWords(e.target.value),
                                             }))
                                         }
                                         placeholder="Ex: Gerente de Vendas"
