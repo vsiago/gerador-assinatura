@@ -182,7 +182,7 @@ export default function SignatureGenerator() {
                                             <p className="text-base font-medium text-slate-500">{formData.department || "Departamento"}</p>
                                         </div>
 
-                                        <div className="space-y-1 text-[#375582] w-44 ">
+                                        <div className="space-y-1 text-[#375582] w-52 ">
                                             <div className="flex items-center gap-2 ">
                                                 <MapPinned className="w-5 h-5 flex-shrink-0" />
                                                 <span className="font-semibold">Endereço</span>
