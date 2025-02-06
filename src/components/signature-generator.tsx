@@ -180,7 +180,7 @@ export default function SignatureGenerator() {
                                             <img
                                                 src="/assinatura-prefeitura-itaguaí.png"
                                                 alt="Prefeitura de Itaguaí"
-                                                className="w-full h-full  md:w-56 object-contain"
+                                                className="w-56 object-contain"
                                             />
                                         </div>
                                     </div>
