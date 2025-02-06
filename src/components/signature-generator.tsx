@@ -161,7 +161,7 @@ export default function SignatureGenerator() {
                 {/* Visualização da Assinatura */}
                 <div className=" rounded-xl overflow-scroll md:overflow-auto px-6 pb-3">
                     <div className="space-y-4  min-w-[700px] ">
-                        <Card className="p-2 bg-white/60 border-4 border-white rounded-xl drop-shadow-2xl">
+                        <Card className="p-2 bg-white/90 border-4 border-white rounded-xl drop-shadow-2xl">
                             <div id="signature-preview" className="p-4 bg-white">
                                 <div className="font-sans text-sm space-y-4 sm:space-y-6">
                                     {/* Header */}
