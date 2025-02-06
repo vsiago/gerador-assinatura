@@ -228,12 +228,12 @@ export default function SignatureGenerator() {
                                 <div className="font-sans text-sm space-y-4 sm:space-y-6">
                                     {/* Header */}
                                     <div className="flex items-center justify-between gap-4">
-                                        <div className="flex   gap-4 flex-1 ">
+                                        <div className="flex items-center  gap-4 flex-1 ">
                                             <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 ring-4 ring-sky-500 border-white">
                                                 <AvatarImage src={avatar || undefined} alt="Avatar" />
                                                 <AvatarFallback className="font-semibold text-4xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
                                             </Avatar>
-                                            <div className="text-left mt-1 md:mt-3 ml-2  w-full">
+                                            <div className="text-left mt-1 ml-2  w-full">
                                                 <p className="font-bold text-2xl text-[#375582]">{formatName(formData.name)}</p>
                                                 <p className="text-[#0266AF] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
                                             </div>
