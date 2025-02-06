@@ -142,14 +142,13 @@ export default function SignatureGenerator() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-3xl">
-            <h1 className="text-lg md:text-2xl font-bold mb-6 text-center text-[#375582]">Gerador de Assinatura de E-mail</h1>
-
-            <div className="grid md:grid-cols-1 gap-6 ">
+        <div className="container mx-auto  max-w-3xl">
+            <h1 className="text-lg md:text-3xl font-bold mb-6 text-center text-[#375582] mt-5">Gerador de Assinatura de E-mail</h1>
+            <div className="grid md:grid-cols-1 ">
                 {/* Visualização da Assinatura */}
-                <div className="overflow-scroll md:overflow-auto shadow-2xl rounded-xl">
+                <div className=" rounded-xl overflow-scroll md:overflow-auto px-6 pb-3">
                     <div className="space-y-4  min-w-[700px] ">
-                        <Card className="p-2 bg-white/60 border-4 border-white rounded-xl">
+                        <Card className="p-2 bg-white/60 border-4 border-white rounded-xl drop-shadow-2xl">
                             <div id="signature-preview" className="p-4 bg-white">
                                 <div className="font-sans text-sm space-y-4 sm:space-y-6">
                                     {/* Header */}
@@ -160,7 +159,7 @@ export default function SignatureGenerator() {
                                                 <AvatarFallback className="font-semibold text-4xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-left mt-1 md:mt-3 ml-2  w-full">
-                                                <p className="font-bold text-xl text-[#375582]">{formatName(formData.name)}</p>
+                                                <p className="font-bold text-2xl text-[#375582]">{formatName(formData.name)}</p>
                                                 <p className="text-[#0266AF] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
                                             </div>
                                         </div>
@@ -204,8 +203,9 @@ export default function SignatureGenerator() {
                         </Card>
                     </div>
                 </div>
-                <Card className="p-6 bg-white/70  shadow-xl shadow-slate-200">
-                    <form className="space-y-4">
+                <div className="p-6">
+                <Card className="p-6 bg-white/70  shadow-xl shadow-slate-200 ">
+                    <form className="space-y-4 ">
                         <div>
                             <Label htmlFor="name">Nome Completo</Label>
                             <div className="relative">
@@ -372,9 +372,10 @@ export default function SignatureGenerator() {
                         </div>
                     </form>
                 </Card>
-                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12">
+                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12 mt-10">
                     Baixar Assinatura
                 </Button>
+                </div>
             </div>
             <div className="w-full h-20">
                 
