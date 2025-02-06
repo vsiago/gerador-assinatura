@@ -67,7 +67,6 @@ export default function SignatureGenerator() {
             return;
         }
 
-        button.disabled = true;
         button.innerText = "Gerando...";
         button.style.backgroundColor = "gray";
 
@@ -122,7 +121,6 @@ export default function SignatureGenerator() {
             setTimeout(() => {
                 button.innerText = "Baixar Assinatura";
                 button.style.backgroundColor = "";
-                button.disabled = false;
             }, 3000);
         } catch (error) {
             console.error("Erro ao gerar assinatura:", error);
@@ -132,7 +130,6 @@ export default function SignatureGenerator() {
             setTimeout(() => {
                 button.innerText = "Baixar Assinatura";
                 button.style.backgroundColor = "";
-                button.disabled = false;
             }, 3000);
         } finally {
             document.body.removeChild(clone);
