@@ -128,9 +128,22 @@ export default function SignatureGenerator() {
     }
 
     function formatPhone(phone: string) {
-        if (!phone) return "Telefone"
-        return phone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
+        if (!phone) return "";
+
+        // Remove tudo que não for número
+        let numericValue = phone.replace(/\D/g, "");
+
+        // Limita a 11 dígitos (DDD + número)
+        numericValue = numericValue.slice(0, 11);
+
+        // Aplica a máscara (XX) XXXXX-XXXX
+        return numericValue.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
     }
+
+    const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhone(e.target.value);
+        setFormData((prev) => ({ ...prev, phone: formatted }));
+    };
 
     function getInitials(name: string) {
         return name
@@ -163,11 +176,11 @@ export default function SignatureGenerator() {
                                                 <p className="text-[#0266AF] text-lg font-semibold">{formData.role || "Cargo/Função"}</p>
                                             </div>
                                         </div>
-                                        <div className=" w-48">
+                                        <div className="  flex items-center justify-center">
                                             <img
                                                 src="/assinatura-prefeitura-itaguaí.png"
                                                 alt="Prefeitura de Itaguaí"
-                                                className="w-fullmd:w-48 object-cover"
+                                                className="w-full h-full  md:w-56 object-contain"
                                             />
                                         </div>
                                     </div>
@@ -204,188 +217,197 @@ export default function SignatureGenerator() {
                     </div>
                 </div>
                 <div className="p-6">
-                <Card className="p-6 bg-white/70  shadow-xl shadow-slate-200 ">
-                    <form className="space-y-4 ">
-                        <div>
-                            <Label htmlFor="name">Nome Completo</Label>
-                            <div className="relative">
-                                <User className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    placeholder="Ex: João Silva"
-                                    className="pl-8"
-                                />
+                    <Card className="p-6 bg-white/70  shadow-xl shadow-slate-200 ">
+                        <form className="space-y-4 ">
+                            <div>
+                                <Label htmlFor="name">Nome Completo</Label>
+                                <div className="relative">
+                                    <User className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                    <Input
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleInputChange}
+                                        placeholder="Ex: João Silva"
+                                        className="pl-8"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Label htmlFor="role">Cargo</Label>
-                            <div className="relative">
-                                <Briefcase className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                <Input
-                                    id="role"
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleInputChange}
-                                    placeholder="Ex: Gerente de Vendas"
-                                    className="pl-8"
-                                />
+                            <div>
+                                <Label htmlFor="role">Cargo</Label>
+                                <div className="relative">
+                                    <Briefcase className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                    <Input
+                                        id="role"
+                                        name="role"
+                                        value={formData.role}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                role: e.target.value
+                                                    .toLowerCase()
+                                                    .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitaliza cada palavra
+                                            }))
+                                        }
+                                        placeholder="Ex: Gerente de Vendas"
+                                        className="pl-8"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Label htmlFor="department">Departamento</Label>
-                            <div className="relative">
-                                <Building2 className="absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
-                                <select
-                                    id="department"
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleInputChange}
-                                    className="flex h-10 w-full text-slate-600 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0266AF] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                    <option value="">Selecione o departamento</option>
-                                    <option value="GP - Gabinete do Prefeito">GP - Gabinete do Prefeito</option>
-                                    <option value="VP - Gabinete do Vice-Prefeito">VP - Gabinete do Vice-Prefeito</option>
-                                    <option value="PGM - Procuradoria Geral do Município">PGM - Procuradoria Geral do Município</option>
-                                    <option value="CGM - Controladoria Geral do Governo">CGM - Controladoria Geral do Governo</option>
-                                    <option value="SMGOV - Secretaria Municipal de Governo">
-                                        SMGOV - Secretaria Municipal de Governo
-                                    </option>
-                                    <option value="SMADM - Secretaria Municipal de Administração">
-                                        SMADM - Secretaria Municipal de Administração
-                                    </option>
-                                    <option value="SMALIC - Secretaria Municipal de Licitações e Contratos">
-                                        SMALIC - Secretaria Municipal de Licitações e Contratos
-                                    </option>
-                                    <option value="SMEDU - Secretaria Municipal de Educação">
-                                        SMEDU - Secretaria Municipal de Educação
-                                    </option>
-                                    <option value="SMSAU - Secretaria Municipal de Saúde">SMSAU - Secretaria Municipal de Saúde</option>
-                                    <option value="SMAAS - Secretaria Municipal de Assistência Social">
-                                        SMAAS - Secretaria Municipal de Assistência Social
-                                    </option>
-                                    <option value="SMOPLU - Secretaria Municipal de Ordem Pública e Limpeza Urbana">
-                                        SMOPLU - Secretaria Municipal de Ordem Pública e Limpeza Urbana
-                                    </option>
-                                    <option value="SMTMU - Secretaria Municipal de Transportes e Mobilidade Urbana">
-                                        SMTMU - Secretaria Municipal de Transportes e Mobilidade Urbana
-                                    </option>
-                                    <option value="SMCUL - Secretaria Municipal de Cultura">
-                                        SMCUL - Secretaria Municipal de Cultura
-                                    </option>
-                                    <option value="SMESP - Secretaria Municipal de Esportes">
-                                        SMESP - Secretaria Municipal de Esportes
-                                    </option>
-                                    <option value="SMAMCPA - Secretaria Municipal do Ambiente, Mudanças do Clima e Bem-Estar Animal">
-                                        SMAMCPA - Secretaria Municipal do Ambiente, Mudanças do Clima e Bem-Estar Animal
-                                    </option>
-                                    <option value="SMAPA - Secretaria Municipal de Agricultura, Pesca e Abastecimento">
-                                        SMAPA - Secretaria Municipal de Agricultura, Pesca e Abastecimento
-                                    </option>
-                                    <option value="SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação">
-                                        SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação
-                                    </option>
-                                    <option value="SMFPL - Secretaria Municipal de Fazenda e Planejamento">
-                                        SMFPL - Secretaria Municipal de Fazenda e Planejamento
-                                    </option>
-                                    <option value="SMOU - Secretaria Municipal de Obras e Urbanismo">
-                                        SMOU - Secretaria Municipal de Obras e Urbanismo
-                                    </option>
-                                    <option value="SMSPDT - Secretaria Municipal de Defesa Civil, Defesa e Trânsito">
-                                        SMSPDT - Secretaria Municipal de Defesa Civil, Defesa e Trânsito
-                                    </option>
-                                    <option value="SMSEG - Secretaria Municipal de Segurança Pública">
-                                        SMSEG - Secretaria Municipal de Segurança Pública
-                                    </option>
-                                    <option value="SMEV - Secretaria Municipal de Eventos">SMEV - Secretaria Municipal de Eventos</option>
-                                    <option value="SMDE - Secretaria Municipal de Desenvolvimento Econômico">
-                                        SMDE - Secretaria Municipal de Desenvolvimento Econômico
-                                    </option>
-                                    <option value="CIAITA - CODUITA - Companhia Municipal de Desenvolvimento Urbano de Itaguaí">
-                                        CIAITA - CODUITA - Companhia Municipal de Desenvolvimento Urbano de Itaguaí
-                                    </option>
-                                </select>
+                            <div>
+                                <Label htmlFor="department">Departamento</Label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
+                                    <select
+                                        id="department"
+                                        name="department"
+                                        value={formData.department}
+                                        onChange={handleInputChange}
+                                        className="flex h-10 w-full text-slate-600 rounded-md border border-input bg-background pl-8 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0266AF] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="">Selecione o departamento</option>
+                                        <option value="GP - Gabinete do Prefeito">GP - Gabinete do Prefeito</option>
+                                        <option value="VP - Gabinete do Vice-Prefeito">VP - Gabinete do Vice-Prefeito</option>
+                                        <option value="PGM - Procuradoria Geral do Município">PGM - Procuradoria Geral do Município</option>
+                                        <option value="CGM - Controladoria Geral do Governo">CGM - Controladoria Geral do Governo</option>
+                                        <option value="SMGOV - Secretaria Municipal de Governo">
+                                            SMGOV - Secretaria Municipal de Governo
+                                        </option>
+                                        <option value="SMADM - Secretaria Municipal de Administração">
+                                            SMADM - Secretaria Municipal de Administração
+                                        </option>
+                                        <option value="SMALIC - Secretaria Municipal de Licitações e Contratos">
+                                            SMALIC - Secretaria Municipal de Licitações e Contratos
+                                        </option>
+                                        <option value="SMEDU - Secretaria Municipal de Educação">
+                                            SMEDU - Secretaria Municipal de Educação
+                                        </option>
+                                        <option value="SMSAU - Secretaria Municipal de Saúde">SMSAU - Secretaria Municipal de Saúde</option>
+                                        <option value="SMAAS - Secretaria Municipal de Assistência Social">
+                                            SMAAS - Secretaria Municipal de Assistência Social
+                                        </option>
+                                        <option value="SMOPLU - Secretaria Municipal de Ordem Pública e Limpeza Urbana">
+                                            SMOPLU - Secretaria Municipal de Ordem Pública e Limpeza Urbana
+                                        </option>
+                                        <option value="SMTMU - Secretaria Municipal de Transportes e Mobilidade Urbana">
+                                            SMTMU - Secretaria Municipal de Transportes e Mobilidade Urbana
+                                        </option>
+                                        <option value="SMCUL - Secretaria Municipal de Cultura">
+                                            SMCUL - Secretaria Municipal de Cultura
+                                        </option>
+                                        <option value="SMESP - Secretaria Municipal de Esportes">
+                                            SMESP - Secretaria Municipal de Esportes
+                                        </option>
+                                        <option value="SMAMCPA - Secretaria Municipal do Ambiente, Mudanças do Clima e Bem-Estar Animal">
+                                            SMAMCPA - Secretaria Municipal do Ambiente, Mudanças do Clima e Bem-Estar Animal
+                                        </option>
+                                        <option value="SMAPA - Secretaria Municipal de Agricultura, Pesca e Abastecimento">
+                                            SMAPA - Secretaria Municipal de Agricultura, Pesca e Abastecimento
+                                        </option>
+                                        <option value="SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação">
+                                            SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação
+                                        </option>
+                                        <option value="SMFPL - Secretaria Municipal de Fazenda e Planejamento">
+                                            SMFPL - Secretaria Municipal de Fazenda e Planejamento
+                                        </option>
+                                        <option value="SMOU - Secretaria Municipal de Obras e Urbanismo">
+                                            SMOU - Secretaria Municipal de Obras e Urbanismo
+                                        </option>
+                                        <option value="SMSPDT - Secretaria Municipal de Defesa Civil, Defesa e Trânsito">
+                                            SMSPDT - Secretaria Municipal de Defesa Civil, Defesa e Trânsito
+                                        </option>
+                                        <option value="SMSEG - Secretaria Municipal de Segurança Pública">
+                                            SMSEG - Secretaria Municipal de Segurança Pública
+                                        </option>
+                                        <option value="SMEV - Secretaria Municipal de Eventos">SMEV - Secretaria Municipal de Eventos</option>
+                                        <option value="SMDE - Secretaria Municipal de Desenvolvimento Econômico">
+                                            SMDE - Secretaria Municipal de Desenvolvimento Econômico
+                                        </option>
+                                        <option value="CIAITA - CODUITA - Companhia Municipal de Desenvolvimento Urbano de Itaguaí">
+                                            CIAITA - CODUITA - Companhia Municipal de Desenvolvimento Urbano de Itaguaí
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Label htmlFor="phone">Telefone</Label>
-                            <div className="relative">
-                                <Phone className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                <Input
-                                    id="phone"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    placeholder="Ex: +55 11 99999-9999"
-                                    className="pl-8"
-                                />
+                            <div>
+                                <Label htmlFor="phone">Telefone</Label>
+                                <div className="relative">
+                                    <Phone className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                    <Input
+                                        id="phone"
+                                        name="phone"
+                                        type="tel"
+                                        inputMode="numeric"
+                                        value={formData.phone}
+                                        onChange={handlePhoneInputChange}
+                                        placeholder="(XX) XXXXX-XXXX"
+                                        className="pl-8"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Label htmlFor="address">Endereço</Label>
-                            <div className="relative">
-                                <MapPin className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                                <Input
-                                    id="address"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleInputChange}
-                                    placeholder="Ex: Av. Paulista, 1000 - São Paulo, SP"
-                                    className="pl-8"
-                                />
+                            <div>
+                                <Label htmlFor="address">Endereço</Label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                    <Input
+                                        id="address"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleInputChange}
+                                        placeholder="Ex: Av. Paulista, 1000 - São Paulo, SP"
+                                        className="pl-8"
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Label htmlFor="avatar">Foto de Perfil (Opcional)</Label>
-                            <div className="flex items-center space-x-4">
-                                <Avatar className="w-12 h-12 border-4">
-                                    <AvatarImage src={avatar || undefined} alt="Avatar" />
-                                    <AvatarFallback>{getInitials(formData.name)}</AvatarFallback>
-                                </Avatar>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center space-x-1"
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    <Upload size={16} />
-                                    <span>Upload</span>
-                                </Button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    id="avatar"
-                                    name="avatar"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleAvatarUpload}
-                                />
+                            <div>
+                                <Label htmlFor="avatar">Foto de Perfil (Opcional)</Label>
+                                <div className="flex items-center space-x-4">
+                                    <Avatar className="w-12 h-12 border-4">
+                                        <AvatarImage src={avatar || undefined} alt="Avatar" />
+                                        <AvatarFallback>{getInitials(formData.name)}</AvatarFallback>
+                                    </Avatar>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex items-center space-x-1"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <Upload size={16} />
+                                        <span>Upload</span>
+                                    </Button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        id="avatar"
+                                        name="avatar"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleAvatarUpload}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                    </form>
-                </Card>
-                <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12 mt-10">
-                    Baixar Assinatura
-                </Button>
+                        </form>
+                    </Card>
+                    <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12 mt-10">
+                        Baixar Assinatura
+                    </Button>
                 </div>
             </div>
-            <div className="w-full h-20">
-                
-            <Image
-            width={150}
-            height={150}
-            className="h-full w-full max-w-[320px] mx-auto my-3"
-                alt="Logo SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação"
-                src="/logo-SMCTIC.svg"
-            />
+            <div className="w-full h-24">
+
+                <Image
+                    width={150}
+                    height={150}
+                    className="h-full w-full max-w-[320px] mx-auto my-3"
+                    alt="Logo SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação"
+                    src="/logo-SMCTIC.svg"
+                />
             </div>
         </div>
     )
