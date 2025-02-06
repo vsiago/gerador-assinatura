@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, type ChangeEvent } from "react"
+import { useState, useRef, type ChangeEvent, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,6 +20,14 @@ export default function SignatureGenerator() {
     })
     const [avatar, setAvatar] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [isDownloadable, setIsDownloadable] = useState(false);
+    const [buttonState, setButtonState] = useState("default");
+
+    useEffect(() => {
+        const allFieldsFilled = Object.values(formData).every(field => field.trim() !== "");
+        setIsDownloadable(allFieldsFilled);
+    }, [formData]);
+
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -38,14 +46,33 @@ export default function SignatureGenerator() {
         }
     }
 
+
+
+
     const handleDownload = async () => {
         const signatureElement = document.getElementById("signature-preview");
         if (!signatureElement) return;
 
-        // Clona o elemento para manipulação sem afetar a visualização original
+        const requiredFields = document.querySelectorAll(".required-field");
+        const allFieldsFilled = Array.from(requiredFields).every(field => (field as HTMLInputElement).value.trim() !== "");
+
+        if (!allFieldsFilled) {
+            alert("Preencha todos os campos obrigatórios antes de baixar a assinatura.");
+            return;
+        }
+
+        const button = document.getElementById("download-button");
+        if (!button) {
+            console.error("Botão de download não encontrado");
+            return;
+        }
+
+        button.disabled = true;
+        button.innerText = "Gerando...";
+        button.style.backgroundColor = "gray";
+
         const clone = signatureElement.cloneNode(true) as HTMLElement;
 
-        // Função para verificar se todas as imagens foram carregadas
         const waitForImagesToLoad = async (element: HTMLElement) => {
             const imgElements = element.querySelectorAll("img");
             const promises = Array.from(imgElements).map((img) => {
@@ -54,40 +81,31 @@ export default function SignatureGenerator() {
                         resolve();
                     } else {
                         img.onload = () => resolve();
-                        img.onerror = () => resolve(); // Para evitar travamento caso uma imagem falhe
+                        img.onerror = () => resolve();
                     }
                 });
             });
             await Promise.all(promises);
         };
 
-        // Remove bordas indesejadas dos elementos clonados
         clone.querySelectorAll("*").forEach((el) => {
             (el as HTMLElement).style.border = "none";
         });
 
-        // Injeta um CSS no clone para sobrescrever pseudo-elementos que possam estar aplicando sombras/bordas
         const style = document.createElement("style");
         clone.insertBefore(style, clone.firstChild);
 
-        // Posiciona o clone fora da tela para que não interfira na visualização
         clone.style.position = "absolute";
         clone.style.top = "-9999px";
-
-        // Define a largura do clone para 700px, altura automática
         clone.style.width = "700px";
         clone.style.height = "auto";
 
         document.body.appendChild(clone);
 
-        // Aguarda o carregamento de todas as imagens antes de capturar a imagem
         await waitForImagesToLoad(clone);
-
-        // Aguarda o reflow para calcular a nova altura
         const newHeight = clone.offsetHeight;
 
         try {
-            // Gera a imagem com largura de 700px e a altura calculada
             const dataUrl = await domtoimage.toPng(clone, {
                 width: 700,
                 height: newHeight,
@@ -97,13 +115,32 @@ export default function SignatureGenerator() {
             link.download = "assinatura-email.png";
             link.href = dataUrl;
             link.click();
+
+            button.innerText = "Download concluído!";
+            button.style.backgroundColor = "green";
+
+            setTimeout(() => {
+                button.innerText = "Baixar Assinatura";
+                button.style.backgroundColor = "";
+                button.disabled = false;
+            }, 3000);
         } catch (error) {
             console.error("Erro ao gerar assinatura:", error);
+            button.innerText = "Erro no Download";
+            button.style.backgroundColor = "red";
+
+            setTimeout(() => {
+                button.innerText = "Baixar Assinatura";
+                button.style.backgroundColor = "";
+                button.disabled = false;
+            }, 3000);
         } finally {
-            // Remove o clone da DOM após a captura
             document.body.removeChild(clone);
         }
     };
+
+
+
 
 
 
@@ -146,6 +183,7 @@ export default function SignatureGenerator() {
             return numericValue.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3");
         }
     }
+
 
 
     const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -420,8 +458,14 @@ export default function SignatureGenerator() {
                             </div>
                         </form>
                     </Card>
-                    <Button onClick={handleDownload} className="w-full bg-[#0266AF] hover:bg-sky-600 font-bold text-base text-sky-100 h-12 mt-10">
-                        Baixar Assinatura
+                    <Button
+                        id="download-button"
+                        onClick={handleDownload}
+                        disabled={!isDownloadable}
+                        className={`w-full font-bold text-base h-12 mt-10 transition-colors duration-300 
+        ${buttonState === "success" ? "bg-green-500 text-white" : "bg-[#0266AF] hover:bg-sky-600 text-sky-100"}`}
+                    >
+                        {buttonState === "success" ? "Download concluído" : "Baixar Assinatura"}
                     </Button>
                 </div>
             </div>
