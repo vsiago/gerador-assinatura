@@ -218,7 +218,7 @@ export default function SignatureGenerator() {
 
     return (
         <div className="container mx-auto  max-w-3xl">
-            <h1 className="text-lg md:text-3xl font-bold mb-6 text-center text-[#375582] mt-5 bg-sky-400">Gerador de assinatura de e-mail</h1>
+            <h1 className="text-lg md:text-3xl font-bold mb-6 text-center text-[#375582] mt-5 ">Gerador de assinatura de e-mail</h1>
             <div className="grid md:grid-cols-1 ">
                 {/* Visualização da Assinatura */}
                 <div className=" rounded-xl overflow-scroll md:overflow-auto px-6 pb-3">
