@@ -230,7 +230,7 @@ export default function SignatureGenerator() {
                                     <div className="flex items-center justify-between gap-4">
                                         <div className="flex items-center  gap-4 flex-1 ">
                                             <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 ring-4 ring-sky-500 border-white">
-                                                <AvatarImage src={avatar || undefined} alt="Avatar" />
+                                                <AvatarImage src={avatar || undefined} alt="Avatar" className="object-cover" />
                                                 <AvatarFallback className="font-semibold text-4xl text-slate-500">{getInitials(formData.name)}</AvatarFallback>
                                             </Avatar>
                                             <div className="text-left mt-1 ml-2  w-full">
@@ -257,7 +257,7 @@ export default function SignatureGenerator() {
                                             <p className="text-base font-medium text-slate-500">{formData.department || "Departamento"}</p>
                                         </div>
 
-                                        <div className="space-y-1 text-[#375582] w-52 ">
+                                        <div className="space-y-1 text-[#375582] flex-1 ">
                                             <div className="flex items-center gap-2 ">
                                                 <MapPinned className="w-5 h-5 flex-shrink-0" />
                                                 <span className="font-semibold">Endereço</span>
