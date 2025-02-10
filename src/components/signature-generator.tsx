@@ -471,7 +471,7 @@ export default function SignatureGenerator() {
                 <Image
                     width={150}
                     height={150}
-                    className="h-full w-full max-w-[320px] mx-auto my-3 object-cover"
+                    className="h-full w-full max-w-[320px] mx-auto my-3 object-fit"
                     alt="Logo SMCTIC - Secretaria Municipal de Ciência, Tecnologia, Inovação e Comunicação"
                     src="/logo-SMCTIC.svg"
                 />
